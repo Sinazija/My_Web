@@ -1,3 +1,4 @@
+import os
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.parse
 
@@ -5,21 +6,22 @@ class HttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         pr_url = urllib.parse.urlparse(self.path)
         if pr_url.path == '/':
-            self.send_file('D:\\GO_IT\\My Bot\\WEB\\my_web\\index.html')
+            self.send_file('index.html')
         elif pr_url.path == '/message':
-            self.send_file('D:\\GO_IT\\My Bot\\WEB\\my_web\\message.html')
+            self.send_file('message.html')
         elif pr_url.path == '/style.css':
-            self.send_file('D:\\GO_IT\\My Bot\\WEB\\my_web\\style.css')
+            self.send_file('style.css')
         elif pr_url.path == '/logo.png':
-            self.send_file('D:\\GO_IT\\My Bot\\WEB\\my_web\\logo.png')
+            self.send_file('logo.png')
         else:
-            self.send_file('D:\\GO_IT\\My Bot\\WEB\\my_web\\error.html', 404)
+            self.send_file('error.html', 404)
 
     def send_file(self, filename, status=200):
         self.send_response(status)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
-        with open(filename, 'rb') as fd:
+        file_path = os.path.join(os.path.dirname(__file__), filename)
+        with open(file_path, 'rb') as fd:
             self.wfile.write(fd.read())
 
 
