@@ -20,7 +20,7 @@ class HttpHandler(BaseHTTPRequestHandler):
         pr_url = urllib.parse.urlparse(self.path)
         if pr_url.path == '/':
             self.send_file('index.html')
-        elif pr_url.path == '/message':
+        elif pr_url.path == '/message.html':
             self.send_file('message.html')
         elif pr_url.path == '/style.css':
             self.send_file('style.css', content_type='text/css')
