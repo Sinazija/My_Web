@@ -37,19 +37,44 @@ class HttpHandler(BaseHTTPRequestHandler):
 
             # Отримуємо дані з форми
             data = urllib.parse.parse_qs(post_data.decode('utf-8'))
-            username = data['username'][0]
-            message = data['message'][0]
+            username = data.get('username', [''])[0]
+            message = data.get('message', [''])[0]
 
-            # Відправляємо дані на Socket сервер
-            send_to_socket_server(username, message)
+            if username and message:
+                # Відправляємо дані на Socket сервер
+                send_to_socket_server(username, message)
 
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(b'Thank you for your message!')
+                # Відправляємо відповідь клієнту
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b'''
+                    <html>
+                    <head><title>Message Received</title></head>
+                    <body>
+                    <h1>Thank you for your message!</h1>
+                    <p>Your message has been received and will be processed.</p>
+                    <a href="/">Go back to the main menu</a>
+                    </body>
+                    </html>
+                ''')
+            else:
+                self.send_response(400)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b'''
+                    <html>
+                    <head><title>Bad Request</title></head>
+                    <body>
+                    <h1>Error: Bad Request</h1>
+                    <p>Please provide a username and a message.</p>
+                    <a href="/">Go back to the main menu</a>
+                    </body>
+                    </html>
+                ''')
         else:
             self.send_file('error.html', status=404)
-
+            
     def send_file(self, filename, status=200, content_type='text/html'):
         self.send_response(status)
         self.send_header('Content-type', content_type)
@@ -118,7 +143,7 @@ def handle_socket_data(data):
         contents = f.read()
         if contents:
             f.seek(0, os.SEEK_END)
-            f.write(',\n')
+            f.write('\n')
         f.write(json_data)
 
 
