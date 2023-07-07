@@ -3,7 +3,6 @@ import json
 import socket
 import threading
 from datetime import datetime
-
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.parse
 
@@ -26,6 +25,8 @@ class HttpHandler(BaseHTTPRequestHandler):
             self.send_file('style.css', content_type='text/css')
         elif pr_url.path == '/logo.png':
             self.send_file('logo.png', content_type='image/png')
+        elif pr_url.path == '/success.html':
+            self.send_file('success.html')
         else:
             self.send_file('error.html', status=404)
 
@@ -45,36 +46,16 @@ class HttpHandler(BaseHTTPRequestHandler):
                 send_to_socket_server(username, message)
 
                 # Відправляємо відповідь клієнту
-                self.send_response(200)
-                self.send_header('Content-type', 'text/html')
+                self.send_response(302)  
+                self.send_header('Location', '/success.html')  
                 self.end_headers()
-                self.wfile.write(b'''
-                    <html>
-                    <head><title>Message Received</title></head>
-                    <body>
-                    <h1>Thank you for your message!</h1>
-                    <p>Your message has been received and will be processed.</p>
-                    <a href="/">Go back to the main menu</a>
-                    </body>
-                    </html>
-                ''')
             else:
-                self.send_response(400)
-                self.send_header('Content-type', 'text/html')
+                self.send_response(302)  
+                self.send_header('Location', '/error.html')  
                 self.end_headers()
-                self.wfile.write(b'''
-                    <html>
-                    <head><title>Bad Request</title></head>
-                    <body>
-                    <h1>Error: Bad Request</h1>
-                    <p>Please provide a username and a message.</p>
-                    <a href="/">Go back to the main menu</a>
-                    </body>
-                    </html>
-                ''')
         else:
             self.send_file('error.html', status=404)
-            
+
     def send_file(self, filename, status=200, content_type='text/html'):
         self.send_response(status)
         self.send_header('Content-type', content_type)
